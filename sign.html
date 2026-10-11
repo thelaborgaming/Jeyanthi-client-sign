@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#16314f">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-/9dmaPWksAi/+GY7A1yIIRTqmaMYyYNGs4OfCCbC6io='; style-src 'sha256-gbqPucm6dzgrQAJfv/zVRSw60EabiBN5J3rPc2qSKr8='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-4rL7tvSLZMKFp97wvU39o2I/E2qvh2Jjq22jxl98t7I='; style-src 'sha256-gbqPucm6dzgrQAJfv/zVRSw60EabiBN5J3rPc2qSKr8='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
 <title>Document signing</title>
 <style>:root{color-scheme:light;
   --bg:#f4f6f9;--card:#fff;--ink:#14202e;--muted:#5b6877;--line:#dbe2ea;
@@ -142,6 +142,7 @@ button,summary,.up input,label{touch-action:manipulation}
   <section id="s4" hidden>
     <h1 tabindex="-1">Review your documents</h1>
     <p class="lead">Open each one to check it. You sign once, in the next step, and your signature goes on every document.</p>
+    <button type="button" class="btn ghost sm" id="toggleAll" aria-expanded="false">Expand all</button>
     <div class="docs" id="docs" aria-live="polite"></div>
   </section>
 
@@ -302,16 +303,37 @@ button,summary,.up input,label{touch-action:manipulation}
 
   // ---- docs / preview ----
   function key(d) { return d.form_code + ':' + d.copy_index; }
+  function syncToggle() {
+    var all = $('docs').querySelectorAll('details'), open = $('docs').querySelectorAll('details[open]');
+    var allOpen = all.length > 0 && open.length === all.length;
+    $('toggleAll').textContent = allOpen ? 'Collapse all' : 'Expand all';
+    $('toggleAll').setAttribute('aria-expanded', allOpen ? 'true' : 'false');
+    $('toggleAll').hidden = all.length < 2;
+  }
+  var toggling = 0;
+  function toggleAll() {
+    var all = Array.prototype.slice.call($('docs').querySelectorAll('details'));
+    var want = !(all.length > 0 && all.every(function (x) { return x.open; }));
+    var run = ++toggling;
+    all.forEach(function (x, n) {
+      if (x.open === want) return;
+      if (!want) { x.open = false; return; }
+      setTimeout(function () { if (run === toggling) x.open = true; }, n * 200); // stagger so previews load one after another
+    });
+    setTimeout(syncToggle, all.length * 200 + 50);
+  }
   function buildDocs() {
     $('docs').innerHTML = '';
     toSign().forEach(function (d, i) {
       var det = document.createElement('details'); det.className = 'doc';
       var pn = d.policy_nos ? '<br><small>Policies: ' + esc(d.policy_nos) + '</small>' : '';
       det.innerHTML = '<summary><span>' + esc(d.label) + (d.copy_index > 0 ? ' (' + (d.copy_index + 1) + ')' : '') + (d.form_code === 'FINEXIS_STAY' ? ' <span class="tag">AIA POLICIES ONLY</span>' : '') + pn + '</span><small>Tap to review</small></summary><div class="paper"><div class="hint">Loading preview&hellip;</div></div>';
-      det.addEventListener('toggle', function () { if (det.open) loadPreview(d, det.querySelector('.paper')); });
+      det.addEventListener('toggle', function () { if (det.open) loadPreview(d, det.querySelector('.paper')); syncToggle(); });
       $('docs').appendChild(det);
     });
+    syncToggle();
   }
+  $('toggleAll').addEventListener('click', toggleAll);
   function loadPreview(d, box) {
     var k = key(d);
     if (S.previews[k]) { box.innerHTML = S.previews[k]; return; }
