@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#16314f">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-b/quStYMrafRdJaZ2UYjWNQB7HMM0OerQ6HvKEoTWSA='; style-src 'sha256-X4MYcWK/vyhuuU903RvADO9GPNb0O/8LYq6r0vi/L4k='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-/9dmaPWksAi/+GY7A1yIIRTqmaMYyYNGs4OfCCbC6io='; style-src 'sha256-gbqPucm6dzgrQAJfv/zVRSw60EabiBN5J3rPc2qSKr8='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
 <title>Document signing</title>
 <style>:root{color-scheme:light;
   --bg:#f4f6f9;--card:#fff;--ink:#14202e;--muted:#5b6877;--line:#dbe2ea;
@@ -26,8 +26,8 @@ h1{font-size:22px;margin:4px 0 0;letter-spacing:-.01em}
 .lead{color:var(--muted);margin:4px 0 14px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:14px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-label{font-weight:600;font-size:13px;display:flex;flex-direction:column;gap:4px}
-input[type=text],input[type=email],input[type=tel],select,textarea{font:inherit;border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:#fff;color:var(--ink);width:100%}
+label,.fld{font-weight:600;font-size:13px;display:flex;flex-direction:column;gap:4px}
+input[type=text],input[type=email],input[type=tel],select,textarea{font:inherit;font-size:16px;border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:#fff;color:var(--ink);width:100%}
 :focus-visible{outline:2px solid var(--navy2);outline-offset:2px}
 .hint{font-weight:400;color:var(--muted);font-size:12px}
 .sm{font-size:13px}
@@ -118,10 +118,10 @@ button,summary,.up input,label{touch-action:manipulation}
     <h1 tabindex="-1">A few questions</h1>
     <p class="lead">These go on the PIAS transfer form.</p>
     <div class="card">
-      <label>Source of funds<div class="radio" id="rSrc"></div></label>
-      <label>I understand the transfer of my policies to PIAS<div class="radio" id="rY1"></div></label>
-      <label>I agree to the adviser accessing my policy information<div class="radio" id="rY2"></div></label>
-      <label>I have read the PIAS disclosures<div class="radio" id="rY3"></div></label>
+      <div class="fld" role="radiogroup" aria-labelledby="rSrc_l"><span id="rSrc_l">Source of funds</span><div class="radio" id="rSrc"></div></div>
+      <div class="fld" role="radiogroup" aria-labelledby="rY1_l"><span id="rY1_l">I understand the transfer of my policies to PIAS</span><div class="radio" id="rY1"></div></div>
+      <div class="fld" role="radiogroup" aria-labelledby="rY2_l"><span id="rY2_l">I agree to the adviser accessing my policy information</span><div class="radio" id="rY2"></div></div>
+      <div class="fld" role="radiogroup" aria-labelledby="rY3_l"><span id="rY3_l">I have read the PIAS disclosures</span><div class="radio" id="rY3"></div></div>
       <div class="err" id="e2" role="alert"></div>
     </div>
   </section>
@@ -376,7 +376,6 @@ button,summary,.up input,label{touch-action:manipulation}
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && e.target.matches && e.target.matches('input[type=text],input[type=email],input[type=tel]') && ['details', 'questions', 'id'].indexOf(S.steps[S.i]) >= 0) { e.preventDefault(); $('next').click(); }
   });
-  $('mdone').addEventListener('change', function () { $('next').disabled = !this.checked; });
 
   // ---- navigation ----
   $('back').addEventListener('click', function () { if (S.i > 0) { S.i--; draw(); } });
