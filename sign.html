@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#16314f">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-5x5h6OXv2qpRyH6AnaLo3xpjgAu4iHvcfCAp5p7I3w8='; style-src 'sha256-X4MYcWK/vyhuuU903RvADO9GPNb0O/8LYq6r0vi/L4k='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-b/quStYMrafRdJaZ2UYjWNQB7HMM0OerQ6HvKEoTWSA='; style-src 'sha256-X4MYcWK/vyhuuU903RvADO9GPNb0O/8LYq6r0vi/L4k='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
 <title>Document signing</title>
 <style>:root{color-scheme:light;
   --bg:#f4f6f9;--card:#fff;--ink:#14202e;--muted:#5b6877;--line:#dbe2ea;
@@ -159,7 +159,7 @@ button,summary,.up input,label{touch-action:manipulation}
 
   <section id="s6" hidden>
     <h1 tabindex="-1">One last step: Manulife</h1>
-    <p class="lead">Manulife needs you to confirm the change yourself through Singpass. It takes about two minutes.</p>
+    <p class="lead">Manulife needs you to confirm the change yourself through Singpass. It takes about two minutes. When you are done, upload a screenshot of the confirmation screen.</p>
     <div class="card">
       <ol class="guide">
         <li><div>Log in with Singpass to the Manulife customer portal at <b>mymanulife.com.sg</b></div></li>
@@ -169,8 +169,10 @@ button,summary,.up input,label{touch-action:manipulation}
         <li><div>Key in the code <span class="code" id="mcode"></span>. You should see the name <b>JEYANTHI JEGATHISAN / PIAS</b></div></li>
         <li><div>Tick <b>all policies</b> and press Next</div></li>
         <li><div>Follow the remaining authentication steps</div></li>
+        <li><div>Take a screenshot of the final confirmation screen and upload it below</div></li>
       </ol>
-      <label class="check"><input type="checkbox" id="mdone"><span>I have completed the Manulife steps above.</span></label>
+      <div class="up"><b>Screenshot of the Manulife confirmation</b><div id="pM" class="hint">No file chosen</div><input type="file" accept="image/*" id="fM" aria-label="Manulife confirmation screenshot"></div>
+      <div class="err" id="e6" role="alert"></div>
     </div>
   </section>
 
@@ -188,7 +190,7 @@ button,summary,.up input,label{touch-action:manipulation}
   'use strict';
   var API = 'https://n8n.srv1165221.hstgr.cloud/webhook/';
   var $ = function (id) { return document.getElementById(id); };
-  var S = { token: '', data: null, steps: [], i: 0, mode: 'draw', drawn: false, imgs: { F: null, B: null }, previews: {}, submitting: false, sig: null };
+  var S = { token: '', data: null, steps: [], i: 0, mode: 'draw', drawn: false, imgs: { F: null, B: null, M: null }, previews: {}, submitting: false, sig: null };
 
   // ---- token: read once, scrub from the address bar ----
   (function () {
@@ -244,6 +246,8 @@ button,summary,.up input,label{touch-action:manipulation}
     radios('rY1', 'y1', [['yes', 'Yes']], ''); radios('rY2', 'y2', [['yes', 'Yes']], ''); radios('rY3', 'y3', [['yes', 'Yes']], '');
     var steps = ['details'];
     var needP = piasPending();
+    var guideOnly = !toSign().length && hasGuide();
+    if (guideOnly) steps = [];
     if (needP) steps.push('questions');
     if (needP && d.id_upload_required) steps.push('id');
     if (toSign().length) { steps.push('review'); steps.push('sign'); }
@@ -276,7 +280,7 @@ button,summary,.up input,label{touch-action:manipulation}
     $('back').style.visibility = S.i === 0 || (step === 'guide') ? 'hidden' : 'visible';
     var last = S.i === S.steps.length - 1;
     $('next').textContent = step === 'sign' ? 'Sign and submit' : last ? 'Finish' : 'Continue';
-    $('next').disabled = (step === 'guide' && !$('mdone').checked) || S.submitting;
+    $('next').disabled = (step === 'guide' && !S.imgs.M) || S.submitting;
     if (step === 'sign') setTimeout(sizeCanvas, 0);
     window.scrollTo(0, 0);
   }
@@ -320,16 +324,17 @@ button,summary,.up input,label{touch-action:manipulation}
   }
 
   // ---- ID photos: shrink on device ----
-  ['F', 'B'].forEach(function (k) {
+  ['F', 'B', 'M'].forEach(function (k) {
     $('f' + k).addEventListener('change', function (e) {
       var f = e.target.files[0]; if (!f) return;
       var url = URL.createObjectURL(f), img = new Image();
       img.onload = function () {
-        var max = 1400, s = Math.min(1, max / Math.max(img.width, img.height));
+        var max = k === 'M' ? 1600 : 1400, s = Math.min(1, max / Math.max(img.width, img.height));
         var c = document.createElement('canvas'); c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
         var g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
         S.imgs[k] = c.toDataURL('image/jpeg', 0.8); URL.revokeObjectURL(url);
         $('p' + k).innerHTML = '<img alt="preview" src="' + S.imgs[k] + '"><div class="hint">' + Math.round(S.imgs[k].length * 0.75 / 1024) + ' KB after shrinking</div>';
+        if (k === 'M') { $('e6').textContent = ''; if (S.steps[S.i] === 'guide') $('next').disabled = false; }
       };
       img.onerror = function () { $('p' + k).textContent = 'That file could not be read. Please choose a photo.'; };
       img.src = url;
@@ -391,7 +396,17 @@ button,summary,.up input,label{touch-action:manipulation}
       $('e3').textContent = ''; log('id_uploaded');
     }
     if (step === 'sign') { submit(); return; }
-    if (step === 'guide') { log('manulife_done'); S.i = S.steps.length; S.steps.push('done'); draw(); return; }
+    if (step === 'guide') {
+      if (!S.imgs.M) { $('e6').textContent = 'Please upload the screenshot first.'; return; }
+      S.submitting = true; $('next').disabled = true; $('next').textContent = 'Uploading…'; $('e6').textContent = '';
+      post('jcs-manulife-proof', { t: S.token, image_b64: S.imgs.M.replace(/^data:image\/jpeg;base64,/, '') }).then(function (r) {
+        S.submitting = false;
+        if (r && r.ok) { S.i = S.steps.length; S.steps.push('done'); draw(); return; }
+        $('next').disabled = false; $('next').textContent = 'Finish';
+        $('e6').textContent = (r && r.error === 'image') ? 'That screenshot could not be used. Please choose another image.' : 'The upload did not go through. Please try again, or contact Jeyanthi.';
+      }).catch(function () { S.submitting = false; $('next').disabled = false; $('next').textContent = 'Finish'; $('e6').textContent = 'The connection dropped. Please press Finish again.'; });
+      return;
+    }
     if (S.i === S.steps.length - 1) { S.steps.push('done'); }
     S.i++; draw();
   });
