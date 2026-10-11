@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#16314f">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-5x5h6OXv2qpRyH6AnaLo3xpjgAu4iHvcfCAp5p7I3w8='; style-src 'sha256-yoN+apEq0dAZ232hDh3YZq4xYD15kzBugkRp2NU527I='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
+<title>Document signing</title>
+<style>:root{color-scheme:light;
+  --bg:#f4f6f9;--card:#fff;--ink:#14202e;--muted:#5b6877;--line:#dbe2ea;
+  --navy:#16314f;--navy2:#24507f;--soft:#e8eff7;--ok:#1d7a4a;--okbg:#e2f3ea;--warn:#8a4b00;--warnbg:#fff3cf;--err:#b3261e;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--sig:"Segoe Script","Bradley Hand","Snell Roundhand","Apple Chancery","Brush Script MT",cursive}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;padding-inline:16px;padding-block:0 40px}
+.wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:16px;padding-top:16px}
+header{background:var(--navy);color:#fff;margin-inline:-16px;padding:14px 16px}
+header .in{max-width:720px;margin:0 auto}
+header b{font-size:17px}header span{opacity:.8;font-size:13px}
+.steps{display:flex;gap:6px}
+.steps i{flex:1;height:5px;border-radius:3px;background:var(--line)}
+.steps i.on{background:var(--navy2)}.steps i.done{background:var(--ok)}
+h1{font-size:22px;margin:4px 0 0;letter-spacing:-.01em}
+.lead{color:var(--muted);margin:4px 0 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+label{font-weight:600;font-size:13px;display:flex;flex-direction:column;gap:4px}
+input[type=text],input[type=email],input[type=tel],select,textarea{font:inherit;border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:#fff;color:var(--ink);width:100%}
+:focus-visible{outline:2px solid var(--navy2);outline-offset:2px}
+.hint{font-weight:400;color:var(--muted);font-size:12px}
+.sm{font-size:13px}
+.pol{display:inline-block;font:500 12px ui-monospace,monospace;background:var(--soft);border-radius:4px;padding:2px 8px;margin:2px 4px 2px 0}
+.docs{display:flex;flex-direction:column;gap:8px}
+.doc{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+.doc summary{padding:11px 14px;cursor:pointer;display:flex;justify-content:space-between;gap:10px;font-weight:600;align-items:center;flex-wrap:wrap}
+.doc summary small{font-weight:500;color:var(--muted)}
+.tag{font-size:11px;font-weight:700;letter-spacing:.04em;padding:2px 8px;border-radius:4px;background:#fbe5e3;color:var(--err);border:1px solid var(--err)}
+.paper{border-top:1px solid var(--line);padding:14px}
+.pgs{display:flex;flex-direction:column;gap:10px}
+.pg{border:1px solid var(--line);border-radius:4px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08);background:#fff}
+.pg img{display:block;width:100%;height:auto}
+.pgn{font-size:11px;color:var(--muted);text-align:right}
+.note{background:var(--soft);border-radius:8px;padding:10px 12px;font-size:13px}
+.note.warn{background:var(--warnbg);color:var(--warn)}
+.radio{display:flex;flex-wrap:wrap;gap:8px}
+.radio label{flex-direction:row;align-items:center;gap:6px;font-weight:500;border:1px solid var(--line);border-radius:8px;padding:7px 12px;cursor:pointer}
+.radio input:checked+span{font-weight:700}
+.up{border:2px dashed var(--line);border-radius:10px;padding:14px;text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
+.up img{max-width:100%;max-height:150px;border-radius:6px}
+.tabs{display:flex;gap:6px}
+.tabs button{flex:1;border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px;font:inherit;font-weight:600;cursor:pointer;color:var(--ink)}
+.tabs button[aria-selected=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+canvas{width:100%;height:180px;border:1px solid var(--line);border-radius:10px;background:#fff;touch-action:none;display:block}
+.typed{font-family:var(--sig);font-size:44px;text-align:center;border:1px solid var(--line);border-radius:10px;padding:12px;min-height:110px;display:flex;align-items:center;justify-content:center;word-break:break-word;margin-top:8px}
+.bar{padding:4px 0 24px}
+.bar .in{display:flex;gap:10px}.bar .btn{flex:1}
+.btn{font:inherit;font-weight:700;border-radius:10px;padding:11px 20px;border:1px solid var(--navy);background:var(--navy);color:#fff;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--navy)}
+.btn.sm{padding:6px 14px;align-self:flex-start;margin-top:8px;font-size:13px}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.err{color:var(--err);font-size:13px;min-height:18px}
+.err.center{text-align:center;margin-top:8px}
+ol.guide{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px;counter-reset:g}
+ol.guide li{counter-increment:g;display:flex;gap:12px;align-items:flex-start}
+ol.guide li::before{content:counter(g);flex:none;width:28px;height:28px;border-radius:50%;background:var(--navy);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:13px}
+.code{font:700 18px ui-monospace,monospace;background:var(--soft);padding:2px 10px;border-radius:6px}
+.check{flex-direction:row;gap:10px;align-items:flex-start;font-weight:500}
+.done{text-align:center;align-items:center}
+.done .big{width:64px;height:64px;border-radius:50%;background:var(--okbg);color:var(--ok);display:flex;align-items:center;justify-content:center;font-size:34px}
+.ph{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}
+.ph b{background:var(--soft);padding:9px 12px;font-weight:700}
+.ph input{border:0!important;border-radius:0!important}
+[hidden]{display:none!important}
+.mt{margin-top:10px}
+
+.skip{position:absolute;left:-999px;top:0;background:#fff;color:var(--navy);padding:8px 12px;z-index:10}
+.skip:focus{left:8px;top:8px}
+h1{text-wrap:balance}h1:focus{outline:none}
+button,summary,.up input,label{touch-action:manipulation}
+.btn:hover:not([disabled]){background:var(--navy2);border-color:var(--navy2)}
+.btn.ghost:hover:not([disabled]){background:var(--soft);color:var(--navy)}
+.tabs button:hover:not([aria-selected=true]){background:var(--soft)}
+.doc summary:hover{background:var(--soft)}
+.radio label:hover{background:var(--soft)}
+.card,.docs{overflow-wrap:anywhere}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header><div class="in"><div><b>Document signing</b><br><span>Jeyanthi Jegathisan &middot; Financial adviser</span></div></div></header>
+<main class="wrap" id="main">
+  <div class="steps" id="steps" role="progressbar" aria-label="Progress" aria-valuemin="1" aria-valuenow="1" aria-valuemax="1" hidden></div>
+  <section id="msg" hidden><div class="card done"><h1 tabindex="-1" id="msgT"></h1><p class="lead" id="msgB"></p></div></section>
+  <section id="loading"><div class="card done"><p class="lead">Loading your documents&hellip;</p></div></section>
+
+  <section id="s1" hidden>
+    <h1 tabindex="-1" id="hello">Hello</h1>
+    <p class="lead">Please check your details. They are filled into your forms for you.</p>
+    <div class="card">
+      <div class="grid">
+        <label>Full name <input type="text" id="name" name="name" autocomplete="name"></label>
+        <label>NRIC / Passport no. <input type="text" id="nric" name="id_number" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="12"></label>
+        <label>Mobile number <span class="hint">8 digits, Singapore number</span><span class="ph"><b>+65</b><input type="tel" id="phone" name="phone" inputmode="numeric" maxlength="8" autocomplete="tel-national" placeholder="8 digits"></span></label>
+        <label>Email <input type="email" id="email" name="email" autocomplete="email" spellcheck="false"></label>
+        <label>Nationality <input type="text" id="nat" name="nationality" value="Singaporean" autocomplete="country-name"></label>
+        <label>Occupation <input type="text" id="occ" name="occupation" autocomplete="organization-title" placeholder="Please complete"></label>
+      </div>
+      <label>Residential address <textarea id="addr" name="address" rows="2" autocomplete="street-address"></textarea></label>
+      <div><b class="sm">Your policies</b><div id="pols"></div></div>
+      <div class="err" id="e1" role="alert"></div>
+    </div>
+  </section>
+
+  <section id="s2" hidden>
+    <h1 tabindex="-1">A few questions</h1>
+    <p class="lead">These go on the PIAS transfer form.</p>
+    <div class="card">
+      <label>Source of funds<div class="radio" id="rSrc"></div></label>
+      <label>I understand the transfer of my policies to PIAS<div class="radio" id="rY1"></div></label>
+      <label>I agree to the adviser accessing my policy information<div class="radio" id="rY2"></div></label>
+      <label>I have read the PIAS disclosures<div class="radio" id="rY3"></div></label>
+      <div class="err" id="e2" role="alert"></div>
+    </div>
+  </section>
+
+  <section id="s3" hidden>
+    <h1 tabindex="-1">Upload your ID</h1>
+    <p class="lead">Front and back of your NRIC, or the photo page of your passport (use the same photo twice). These are added to the end of your PIAS form only.</p>
+    <div class="card">
+      <div class="grid">
+        <div class="up"><b>Front</b><div id="pF" class="hint">No file chosen</div><input type="file" accept="image/*" id="fF" aria-label="ID front"></div>
+        <div class="up"><b>Back</b><div id="pB" class="hint">No file chosen</div><input type="file" accept="image/*" id="fB" aria-label="ID back"></div>
+      </div>
+      <div class="note">Photos are shrunk on your device before sending and are kept only inside your signed PIAS form.</div>
+      <div class="err" id="e3" role="alert"></div>
+    </div>
+  </section>
+
+  <section id="s4" hidden>
+    <h1 tabindex="-1">Review your documents</h1>
+    <p class="lead">Open each one to check it. You sign once, in the next step, and your signature goes on every document.</p>
+    <div class="docs" id="docs" aria-live="polite"></div>
+  </section>
+
+  <section id="s5" hidden>
+    <h1 tabindex="-1">Sign</h1>
+    <p class="lead">Your signature is applied to all <span id="nDocs"></span> documents, dated today.</p>
+    <div class="card">
+      <div class="tabs" role="tablist"><button type="button" role="tab" id="tDraw" aria-selected="true">Draw</button><button type="button" role="tab" id="tType" aria-selected="false">Type</button></div>
+      <div id="pDraw"><canvas id="cv" aria-label="Signature pad"></canvas><button type="button" class="btn ghost sm" id="clr">Clear</button></div>
+      <div id="pType" hidden><input type="text" id="typeName" name="signature_name" aria-label="Type your name" autocomplete="off" maxlength="40"><div class="typed" id="typedOut"></div></div>
+      <label class="check"><input type="checkbox" id="agree" name="agree"><span>I confirm the details are correct and I agree to sign these documents electronically. My signing time, IP address and device are recorded.</span></label>
+      <div class="err" id="e5" role="alert"></div>
+    </div>
+  </section>
+
+  <section id="s6" hidden>
+    <h1 tabindex="-1">One last step: Manulife</h1>
+    <p class="lead">Manulife needs you to confirm the change yourself through Singpass. It takes about two minutes.</p>
+    <div class="card">
+      <ol class="guide">
+        <li><div>Log in with Singpass to the Manulife customer portal at <b>mymanulife.com.sg</b></div></li>
+        <li><div>Go to <b>Services</b> on the right</div></li>
+        <li><div>Select <b>Change Representative</b></div></li>
+        <li><div>Select <b>I have a preferred representative</b></div></li>
+        <li><div>Key in the code <span class="code" id="mcode"></span>. You should see the name <b>JEYANTHI JEGATHISAN / PIAS</b></div></li>
+        <li><div>Tick <b>all policies</b> and press Next</div></li>
+        <li><div>Follow the remaining authentication steps</div></li>
+      </ol>
+      <label class="check"><input type="checkbox" id="mdone"><span>I have completed the Manulife steps above.</span></label>
+    </div>
+  </section>
+
+  <section id="s7" hidden>
+    <div class="card done">
+      <div class="big">&#10003;</div>
+      <h1 tabindex="-1">All done, thank you</h1>
+      <p class="lead">Your signed documents have been sent to Jeyanthi. You can close this page.</p>
+    </div>
+  </section>
+
+  <div class="bar" id="bar" hidden><div class="in"><button type="button" class="btn ghost" id="back">Back</button><button type="button" class="btn" id="next">Continue</button></div><div class="err center" id="eBar" role="alert"></div></div>
+</main>
+<script>(function () {
+  'use strict';
+  var API = 'https://n8n.srv1165221.hstgr.cloud/webhook/';
+  var $ = function (id) { return document.getElementById(id); };
+  var S = { token: '', data: null, steps: [], i: 0, mode: 'draw', drawn: false, imgs: { F: null, B: null }, previews: {}, submitting: false, sig: null };
+
+  // ---- token: read once, scrub from the address bar ----
+  (function () {
+    var t = '';
+    try { t = new URLSearchParams(location.search).get('t') || ''; } catch (e) {}
+    if (t) { try { sessionStorage.setItem('jcs-t', t); } catch (e) {} }
+    else { try { t = sessionStorage.getItem('jcs-t') || ''; } catch (e) {} }
+    S.token = t;
+    try { history.replaceState(null, '', location.pathname); } catch (e) {}
+  })();
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]; }); }
+  function post(path, body) {
+    return fetch(API + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), referrerPolicy: 'no-referrer', credentials: 'omit' })
+      .then(function (r) { return r.json(); });
+  }
+  function log(ev, detail) { if (!S.token) return; post('jcs-sign-log', { t: S.token, event: ev, detail: detail || '' }).catch(function () {}); }
+
+  function showMsg(title, body) {
+    ['loading', 's1', 's2', 's3', 's4', 's5', 's6', 's7', 'bar', 'steps'].forEach(function (k) { $(k).hidden = true; });
+    $('msgT').textContent = title; $('msgB').textContent = body; $('msg').hidden = false;
+  }
+  var ERR = {
+    invalid: ['This link is not valid', 'Please ask Jeyanthi to send you a new link.'],
+    revoked: ['This link is no longer active', 'Please ask Jeyanthi to send you a new link.'],
+    expired: ['This link has expired', 'Please ask Jeyanthi to send you a new link.'],
+    signed: ['Already signed', 'Your documents have already been signed. Thank you.']
+  };
+
+  // ---- load ----
+  if (!S.token) { showMsg(ERR.invalid[0], ERR.invalid[1]); return; }
+  post('jcs-sign-load', { t: S.token }).then(function (d) {
+    if (!d || !d.ok) { var m = ERR[d && d.error] || ERR.invalid; showMsg(m[0], m[1]); return; }
+    S.data = d; init();
+  }).catch(function () { showMsg('Could not load your documents', 'Check your connection, then reload this page.'); });
+
+  function toSign() { return S.data.docs.filter(function (d) { return d.status !== 'signed' && d.fill_method !== 'guide_only'; }); }
+  function hasGuide() { return S.data.docs.some(function (d) { return d.fill_method === 'guide_only' && d.status !== 'signed'; }); }
+  function piasPending() { return toSign().some(function (d) { return d.form_code === 'PIAS_CTF'; }); }
+
+  function init() {
+    var d = S.data, c = d.client;
+    $('hello').textContent = 'Hello, ' + c.name;
+    $('name').value = c.name || '';
+    var id = String(c.id_no || '');
+    $('nric').value = id;
+    var ph = String(c.contact || '').replace(/\D/g, '');
+    if (ph.length === 10 && ph.indexOf('65') === 0) ph = ph.slice(2);
+    $('phone').value = ph.length === 8 ? ph : '';
+    $('pols').innerHTML = d.policies.map(function (p) { return '<span class="pol">' + esc(p.insurer_code) + ' ' + esc(p.policy_no) + '</span>'; }).join('');
+    $('mcode').textContent = d.manulife_agent_code || '';
+    radios('rSrc', 's', [['salary', 'Salary'], ['business', 'Business income'], ['insurance', 'Insurance'], ['retirement', 'Retirement'], ['investments', 'Investments'], ['gifts', 'Gifts'], ['inheritance', 'Inheritance'], ['compensation', 'Compensation']], 'salary');
+    radios('rY1', 'y1', [['yes', 'Yes']], ''); radios('rY2', 'y2', [['yes', 'Yes']], ''); radios('rY3', 'y3', [['yes', 'Yes']], '');
+    var steps = ['details'];
+    var needP = piasPending();
+    if (needP) steps.push('questions');
+    if (needP && d.id_upload_required) steps.push('id');
+    if (toSign().length) { steps.push('review'); steps.push('sign'); }
+    if (hasGuide()) steps.push('guide');
+    S.steps = steps;
+    $('nDocs').textContent = toSign().length;
+    buildDocs();
+    $('typeName').value = c.name || ''; $('typedOut').textContent = c.name || '';
+    $('loading').hidden = true;
+    draw();
+  }
+
+  function radios(id, name, opts, def) {
+    $(id).innerHTML = opts.map(function (o) { return '<label><input type="radio" name="' + name + '" value="' + esc(o[0]) + '"' + (o[0] === def ? ' checked' : '') + '><span>' + esc(o[1]) + '</span></label>'; }).join('');
+  }
+  function cur(n) { var e = document.querySelector('input[name=' + n + ']:checked'); return e ? e.value : ''; }
+
+  var SECTION = { details: 's1', questions: 's2', id: 's3', review: 's4', sign: 's5', guide: 's6' };
+  function draw() {
+    var step = S.steps[S.i];
+    ['s1', 's2', 's3', 's4', 's5', 's6', 's7', 'msg'].forEach(function (k) { $(k).hidden = true; });
+    $('eBar').textContent = '';
+    if (step === 'done') { $('s7').hidden = false; $('bar').hidden = true; $('steps').hidden = true; window.scrollTo(0, 0); return; }
+    $(SECTION[step]).hidden = false;
+    $('bar').hidden = false;
+    $('steps').hidden = false;
+    $('steps').innerHTML = S.steps.map(function (s, k) { return '<i class="' + (k < S.i ? 'done' : k === S.i ? 'on' : '') + '"></i>'; }).join('');
+    $('steps').setAttribute('aria-valuenow', String(S.i + 1)); $('steps').setAttribute('aria-valuemax', String(S.steps.length));
+    var hd = $(SECTION[step]).querySelector('h1'); if (hd) hd.focus({ preventScroll: true });
+    $('back').style.visibility = S.i === 0 || (step === 'guide') ? 'hidden' : 'visible';
+    var last = S.i === S.steps.length - 1;
+    $('next').textContent = step === 'sign' ? 'Sign and submit' : last ? 'Finish' : 'Continue';
+    $('next').disabled = (step === 'guide' && !$('mdone').checked) || S.submitting;
+    if (step === 'sign') setTimeout(sizeCanvas, 0);
+    window.scrollTo(0, 0);
+  }
+
+  // ---- details ----
+  function details() {
+    return { name: $('name').value.trim(), nric: $('nric').value.trim().toUpperCase(), phone8: $('phone').value.trim(), address: $('addr').value.trim(), email: $('email').value.trim(), occupation: $('occ').value.trim(), nationality: $('nat').value.trim() || 'Singaporean' };
+  }
+  function checkDetails() {
+    var d = details();
+    if (d.name.length < 2) return ['Please enter your full name.', 'name'];
+    if (!/^[A-Z0-9]{6,12}$/.test(d.nric)) return ['Please enter your NRIC or passport number (letters and numbers only).', 'nric'];
+    if (!/^[0-9]{8}$/.test(d.phone8)) return ['Please enter your 8-digit mobile number.', 'phone'];
+    if (!/^[^@ ]+@[^@ ]+[.][^@ ]+$/.test(d.email)) return ['Please enter a valid email address.', 'email'];
+    if (!d.occupation) return ['Please enter your occupation.', 'occ'];
+    if (d.address.length < 5) return ['Please enter your residential address.', 'addr'];
+    return null;
+  }
+
+  // ---- docs / preview ----
+  function key(d) { return d.form_code + ':' + d.copy_index; }
+  function buildDocs() {
+    $('docs').innerHTML = '';
+    toSign().forEach(function (d, i) {
+      var det = document.createElement('details'); det.className = 'doc';
+      var pn = d.policy_nos ? '<br><small>Policies: ' + esc(d.policy_nos) + '</small>' : '';
+      det.innerHTML = '<summary><span>' + esc(d.label) + (d.copy_index > 0 ? ' (' + (d.copy_index + 1) + ')' : '') + (d.form_code === 'FINEXIS_STAY' ? ' <span class="tag">AIA POLICIES ONLY</span>' : '') + pn + '</span><small>Tap to review</small></summary><div class="paper"><div class="hint">Loading preview&hellip;</div></div>';
+      det.addEventListener('toggle', function () { if (det.open) loadPreview(d, det.querySelector('.paper')); });
+      $('docs').appendChild(det);
+    });
+  }
+  function loadPreview(d, box) {
+    var k = key(d);
+    if (S.previews[k]) { box.innerHTML = S.previews[k]; return; }
+    box.innerHTML = '<div class="hint">Loading preview&hellip;</div>';
+    post('jcs-sign-preview', { t: S.token, details: details(), form_code: d.form_code, copy_index: d.copy_index, source: cur('s') || 'salary' }).then(function (r) {
+      if (!r || !r.ok) { box.innerHTML = '<div class="note warn">The preview could not be shown. You can still sign; the document is prepared from the same details.</div>'; return; }
+      var h = '<div class="pgs">' + r.pages.map(function (p, n) { return '<div class="pg"><img alt="' + esc(d.label) + ' page ' + (n + 1) + '" src="data:image/jpeg;base64,' + p + '"></div><div class="pgn">Page ' + (n + 1) + ' of ' + r.page_count + '</div>'; }).join('') + '</div><div class="note mt">Your signature and today’s date are added when you sign.</div>';
+      S.previews[k] = h; box.innerHTML = h; log('doc_viewed', d.form_code);
+    }).catch(function () { box.innerHTML = '<div class="note warn">The preview could not be loaded. Please check your connection.</div>'; });
+  }
+
+  // ---- ID photos: shrink on device ----
+  ['F', 'B'].forEach(function (k) {
+    $('f' + k).addEventListener('change', function (e) {
+      var f = e.target.files[0]; if (!f) return;
+      var url = URL.createObjectURL(f), img = new Image();
+      img.onload = function () {
+        var max = 1400, s = Math.min(1, max / Math.max(img.width, img.height));
+        var c = document.createElement('canvas'); c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+        var g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+        S.imgs[k] = c.toDataURL('image/jpeg', 0.8); URL.revokeObjectURL(url);
+        $('p' + k).innerHTML = '<img alt="preview" src="' + S.imgs[k] + '"><div class="hint">' + Math.round(S.imgs[k].length * 0.75 / 1024) + ' KB after shrinking</div>';
+      };
+      img.onerror = function () { $('p' + k).textContent = 'That file could not be read. Please choose a photo.'; };
+      img.src = url;
+    });
+  });
+
+  // ---- signature ----
+  var cv = $('cv'), ctx = cv.getContext('2d'), down = false, minX, minY, maxX, maxY;
+  function sizeCanvas() { var w = cv.clientWidth; if (!w) return; var d = window.devicePixelRatio || 1; cv.width = w * d; cv.height = 180 * d; ctx.setTransform(d, 0, 0, d, 0, 0); ctx.lineWidth = 2.4; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#14202e'; S.drawn = false; }
+  function pt(e) { var r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
+  function box(p) { minX = Math.min(minX, p[0]); minY = Math.min(minY, p[1]); maxX = Math.max(maxX, p[0]); maxY = Math.max(maxY, p[1]); }
+  cv.addEventListener('pointerdown', function (e) { down = true; cv.setPointerCapture(e.pointerId); var p = pt(e); ctx.beginPath(); ctx.moveTo(p[0], p[1]); if (!S.drawn) { minX = minY = 1e9; maxX = maxY = -1; } S.drawn = true; box(p); });
+  cv.addEventListener('pointermove', function (e) { if (!down) return; var p = pt(e); ctx.lineTo(p[0], p[1]); ctx.stroke(); box(p); });
+  ['pointerup', 'pointercancel'].forEach(function (n) { cv.addEventListener(n, function () { down = false; }); });
+  $('clr').addEventListener('click', function () { ctx.clearRect(0, 0, cv.width, cv.height); S.drawn = false; });
+  function padded(src, sw, sh, sx, sy) {
+    var W = Math.max(sw, 420), H = Math.max(sh, 130);
+    var c = document.createElement('canvas'); c.width = W; c.height = H;
+    c.getContext('2d').drawImage(src, sx, sy, sw, sh, Math.round((W - sw) / 2), Math.round((H - sh) / 2), sw, sh);
+    return c.toDataURL('image/png').replace(/^data:image\/png;base64,/, '');
+  }
+  function drawnPng() {
+    var d = window.devicePixelRatio || 1, x = Math.max(0, minX - 6) * d, y = Math.max(0, minY - 6) * d, w = Math.min(cv.width - x, (maxX - minX + 12) * d), h = Math.min(cv.height - y, (maxY - minY + 12) * d);
+    return padded(cv, Math.round(w), Math.round(h), Math.round(x), Math.round(y));
+  }
+  function typedPng(name) {
+    var c = document.createElement('canvas'); c.width = 900; c.height = 220; var g = c.getContext('2d');
+    g.fillStyle = 'rgba(0,0,0,0)'; g.clearRect(0, 0, 900, 220);
+    var size = 110; g.fillStyle = '#14202e'; g.textBaseline = 'middle';
+    do { g.font = size + 'px "Segoe Script","Bradley Hand","Snell Roundhand","Apple Chancery","Brush Script MT",cursive'; size -= 6; } while (g.measureText(name).width > 840 && size > 24);
+    g.textAlign = 'center'; g.fillText(name, 450, 110);
+    return c.toDataURL('image/png').replace(/^data:image\/png;base64,/, '');
+  }
+  function tab(m) { S.mode = m; $('tDraw').setAttribute('aria-selected', String(m === 'draw')); $('tType').setAttribute('aria-selected', String(m === 'type')); $('pDraw').hidden = m !== 'draw'; $('pType').hidden = m !== 'type'; if (m === 'draw') sizeCanvas(); }
+  $('tDraw').addEventListener('click', function () { tab('draw'); });
+  $('tType').addEventListener('click', function () { tab('type'); });
+  $('typeName').addEventListener('input', function () { $('typedOut').textContent = this.value; });
+  $('phone').addEventListener('input', function () { this.value = this.value.replace(/\D/g, '').slice(0, 8); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && e.target.matches && e.target.matches('input[type=text],input[type=email],input[type=tel]') && ['details', 'questions', 'id'].indexOf(S.steps[S.i]) >= 0) { e.preventDefault(); $('next').click(); }
+  });
+  $('mdone').addEventListener('change', function () { $('next').disabled = !this.checked; });
+
+  // ---- navigation ----
+  $('back').addEventListener('click', function () { if (S.i > 0) { S.i--; draw(); } });
+  $('next').addEventListener('click', function () {
+    var step = S.steps[S.i];
+    if (step === 'details') {
+      var er = checkDetails();
+      if (er) { $('e1').textContent = er[0]; $('e1').scrollIntoView({ block: 'center' }); $(er[1]).focus(); return; }
+      $('e1').textContent = ''; log('details_confirmed');
+    }
+    if (step === 'questions') {
+      if (!cur('y1') || !cur('y2') || !cur('y3')) { $('e2').textContent = 'Please select Yes for each of the three statements.'; return; }
+      $('e2').textContent = ''; log('questions_done');
+    }
+    if (step === 'id') {
+      if (!S.imgs.F || !S.imgs.B) { $('e3').textContent = 'Please add both the front and the back.'; return; }
+      $('e3').textContent = ''; log('id_uploaded');
+    }
+    if (step === 'sign') { submit(); return; }
+    if (step === 'guide') { log('manulife_done'); S.i = S.steps.length; S.steps.push('done'); draw(); return; }
+    if (S.i === S.steps.length - 1) { S.steps.push('done'); }
+    S.i++; draw();
+  });
+
+  function submit() {
+    var name = $('typeName').value.trim();
+    var ok = S.mode === 'draw' ? S.drawn : name.length > 1;
+    if (!ok) { $('e5').textContent = 'Please add your signature.'; return; }
+    if (!$('agree').checked) { $('e5').textContent = 'Please tick the confirmation box.'; return; }
+    $('e5').textContent = '';
+    var sig = S.mode === 'draw' ? drawnPng() : typedPng(name);
+    var needP = piasPending();
+    var body = { t: S.token, details: details(), consents: { transfer: true, access: true, disclosures: true }, source: cur('s') || 'salary', signature_b64: sig };
+    if (needP && S.data.id_upload_required) {
+      body.id_front_b64 = S.imgs.F.replace(/^data:image\/jpeg;base64,/, '');
+      body.id_back_b64 = S.imgs.B.replace(/^data:image\/jpeg;base64,/, '');
+    }
+    S.submitting = true; $('next').disabled = true; $('next').textContent = 'Signing…'; $('eBar').textContent = 'Preparing your documents. This can take a minute, please keep this page open.';
+    log('consent_given');
+    post('jcs-sign-submit', body).then(function (r) {
+      S.submitting = false;
+      if (r && r.ok && r.complete) {
+        var gi = S.steps.indexOf('guide');
+        if (gi >= 0) { S.i = gi; draw(); } else { S.steps.push('done'); S.i = S.steps.length - 1; draw(); }
+        return;
+      }
+      $('next').disabled = false; $('next').textContent = 'Sign and submit';
+      if (r && r.ok) { $('eBar').textContent = 'Some documents could not be completed yet (' + r.signed + ' of ' + r.total + ' done). Jeyanthi has been notified. You can press the button again to retry.'; return; }
+      if (r && r.error === 'details') { $('eBar').textContent = 'Please check your details (' + (r.field || '') + ') on the first page.'; return; }
+      if (r && r.error && ERR[r.error]) { showMsg(ERR[r.error][0], ERR[r.error][1]); return; }
+      $('eBar').textContent = 'Something went wrong. Please try again, or contact Jeyanthi.';
+    }).catch(function () {
+      S.submitting = false; $('next').disabled = false; $('next').textContent = 'Sign and submit';
+      $('eBar').textContent = 'The connection dropped. Please press the button again to retry.';
+    });
+  }
+})();
+</script>
+</body>
+</html>
