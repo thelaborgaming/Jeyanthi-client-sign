@@ -98,7 +98,7 @@ button,summary,.up input,label{touch-action:manipulation}
 
   <section id="s1" hidden>
     <h1 tabindex="-1" id="hello">Hello</h1>
-    <p class="lead">Please check your details. They are filled into your forms for you.</p>
+    <p class="lead">Please check your details. They are filled into your forms for you. If you have moved, please update your residential address to your current one.</p>
     <div class="card">
       <div class="grid">
         <label>Full name <input type="text" id="name" name="name" autocomplete="name"></label>
@@ -108,7 +108,7 @@ button,summary,.up input,label{touch-action:manipulation}
         <label>Nationality <input type="text" id="nat" name="nationality" value="Singaporean" autocomplete="country-name"></label>
         <label>Occupation <input type="text" id="occ" name="occupation" autocomplete="organization-title" placeholder="Please complete"></label>
       </div>
-      <label>Residential address <textarea id="addr" name="address" rows="2" autocomplete="street-address"></textarea></label>
+      <label>Residential address <span class="hint">Please update this to your current address if it has changed</span><textarea id="addr" name="address" rows="2" autocomplete="street-address"></textarea></label>
       <div><b class="sm">Your policies</b><div id="pols"></div></div>
       <div class="err" id="e1" role="alert"></div>
     </div>
