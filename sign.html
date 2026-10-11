@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#16314f">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-5x5h6OXv2qpRyH6AnaLo3xpjgAu4iHvcfCAp5p7I3w8='; style-src 'sha256-yoN+apEq0dAZ232hDh3YZq4xYD15kzBugkRp2NU527I='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-5x5h6OXv2qpRyH6AnaLo3xpjgAu4iHvcfCAp5p7I3w8='; style-src 'sha256-X4MYcWK/vyhuuU903RvADO9GPNb0O/8LYq6r0vi/L4k='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
 <title>Document signing</title>
 <style>:root{color-scheme:light;
   --bg:#f4f6f9;--card:#fff;--ink:#14202e;--muted:#5b6877;--line:#dbe2ea;
@@ -70,8 +70,8 @@ ol.guide li::before{content:counter(g);flex:none;width:28px;height:28px;border-r
 .done{text-align:center;align-items:center}
 .done .big{width:64px;height:64px;border-radius:50%;background:var(--okbg);color:var(--ok);display:flex;align-items:center;justify-content:center;font-size:34px}
 .ph{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}
-.ph b{background:var(--soft);padding:9px 12px;font-weight:700}
-.ph input{border:0!important;border-radius:0!important}
+.ph b{flex:none;display:flex;align-items:center;white-space:nowrap;background:var(--soft);padding:0 12px;font-weight:700}
+.ph input{flex:1;min-width:0;width:auto;border:0!important;border-radius:0!important}
 [hidden]{display:none!important}
 .mt{margin-top:10px}
 
