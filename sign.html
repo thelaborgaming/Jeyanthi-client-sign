@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#12263a">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-aU8+z4O8N6jmaQDFS0YdYageA59FZ4iMxX6u0yZkXY8='; style-src 'sha256-U2HDrBme/rFJ7c5RrWl8oVieGVwkQvSG/w4Vb8lDI3M='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-wZkj+bv2Vl2yr3Mb/1AjvWI8c3ejk+HOQHH8bwqLz6c='; style-src 'sha256-wkr7y8ar7w6luZ0D0ovrsHkmud46s5sM5gyBQzyVgKE='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
 <title>Document signing</title>
 <style>:root{color-scheme:light;
   --bg:#eef1f0;--card:#fcfdfc;--ink:#12263a;--muted:#4e5f6e;--line:#c9d2d6;--edge:#8795a0;
@@ -51,13 +51,14 @@ input[type=text],input[type=email],input[type=tel],select,textarea{font:inherit;
 .radio input:checked+span{font-weight:700}
 .up{border:2px dashed var(--edge);border-radius:4px;padding:16px;text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
 .up img{max-width:100%;max-height:150px;border-radius:3px}
-canvas{width:100%;height:180px;border:1.5px solid var(--edge);border-radius:4px;background:#fff linear-gradient(var(--edge),var(--edge)) 5% 72%/90% 1.5px no-repeat;touch-action:none;display:block}
+canvas{width:100%;height:180px;border:1.5px solid var(--edge);border-radius:4px;background:#fff;touch-action:none;display:block}
 .bar{padding:4px 0 24px}
 .bar .in{display:flex;gap:10px}.bar .btn{flex:1}
 .btn{font:inherit;font-weight:700;border-radius:4px;padding:12px 22px;min-height:48px;border:1.5px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
 .btn.ghost{background:#fff;color:var(--accent)}
 .btn.sm{padding:7px 16px;min-height:40px;align-self:flex-start;margin-top:8px;font-size:14px}
 .btn[disabled]{opacity:.4;cursor:not-allowed}
+.done .btn.sm{align-self:center}
 .err{color:var(--err);font-size:14px;min-height:18px}
 .err.center{text-align:center;margin-top:8px}
 ol.guide{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:12px;counter-reset:g}
@@ -183,6 +184,7 @@ button,summary,.up input,label{touch-action:manipulation}
       <div class="big">&#10003;</div>
       <h1 tabindex="-1">All done, thank you</h1>
       <p class="lead">Your signed documents have been sent to Jeyanthi. You can close this page.</p>
+      <button type="button" class="btn ghost sm" id="rM" hidden>Replace my Manulife screenshot</button>
     </div>
   </section>
 
@@ -255,6 +257,7 @@ button,summary,.up input,label{touch-action:manipulation}
     if (toSign().length) { steps.push('review'); steps.push('sign'); }
     if (hasGuide()) steps.push('guide');
     S.steps = steps;
+    if (d.manulife_replace) { S.steps = ['guide']; S.replace = true; replaceCopy(); }
     $('nDocs').textContent = toSign().length;
     buildDocs();
     $('confirms').hidden = !needP;
@@ -267,12 +270,22 @@ button,summary,.up input,label{touch-action:manipulation}
   }
   function cur(n) { var e = document.querySelector('input[name=' + n + ']:checked'); return e ? e.value : ''; }
 
+  function replaceCopy() {
+    $('s6').querySelector('h1').textContent = 'Replace your Manulife screenshot';
+    $('s6').querySelector('.lead').textContent = 'We already have a screenshot from you. Upload a new one only if the first was wrong or unclear.';
+  }
+  $('rM').addEventListener('click', function () {
+    S.steps = ['guide']; S.i = 0; S.imgs.M = null; S.submitting = false;
+    $('pM').textContent = 'No file chosen'; $('fM').value = ''; $('e6').textContent = '';
+    replaceCopy(); draw();
+  });
+
   var SECTION = { details: 's1', questions: 's2', id: 's3', review: 's4', sign: 's5', guide: 's6' };
   function draw() {
     var step = S.steps[S.i];
     ['s1', 's2', 's3', 's4', 's5', 's6', 's7', 'msg'].forEach(function (k) { $(k).hidden = true; });
     $('eBar').textContent = '';
-    if (step === 'done') { $('s7').hidden = false; $('bar').hidden = true; $('steps').hidden = true; window.scrollTo(0, 0); return; }
+    if (step === 'done') { $('rM').hidden = !S.mDone; $('s7').hidden = false; $('bar').hidden = true; $('steps').hidden = true; window.scrollTo(0, 0); return; }
     $(SECTION[step]).hidden = false;
     $('bar').hidden = false;
     $('steps').hidden = false;
@@ -414,7 +427,7 @@ button,summary,.up input,label{touch-action:manipulation}
       S.submitting = true; $('next').disabled = true; $('next').textContent = 'Uploading…'; $('e6').textContent = '';
       post('jcs-manulife-proof', { t: S.token, image_b64: S.imgs.M.replace(/^data:image\/jpeg;base64,/, '') }).then(function (r) {
         S.submitting = false;
-        if (r && r.ok) { S.i = S.steps.length; S.steps.push('done'); draw(); return; }
+        if (r && r.ok) { S.mDone = true; S.i = S.steps.length; S.steps.push('done'); draw(); return; }
         $('next').disabled = false; $('next').textContent = 'Finish';
         $('e6').textContent = (r && r.error === 'image') ? 'That screenshot could not be used. Please choose another image.' : 'The upload did not go through. Please try again, or contact Jeyanthi.';
       }).catch(function () { S.submitting = false; $('next').disabled = false; $('next').textContent = 'Finish'; $('e6').textContent = 'The connection dropped. Please press Finish again.'; });
