@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#16314f">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-4rL7tvSLZMKFp97wvU39o2I/E2qvh2Jjq22jxl98t7I='; style-src 'sha256-gbqPucm6dzgrQAJfv/zVRSw60EabiBN5J3rPc2qSKr8='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-aU8+z4O8N6jmaQDFS0YdYageA59FZ4iMxX6u0yZkXY8='; style-src 'sha256-1FioJPc/AyaFz6p0Jl4vT3NQUorr3GX+HhszYMD1lx8='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
 <title>Document signing</title>
 <style>:root{color-scheme:light;
   --bg:#f4f6f9;--card:#fff;--ink:#14202e;--muted:#5b6877;--line:#dbe2ea;
@@ -49,11 +49,7 @@ input[type=text],input[type=email],input[type=tel],select,textarea{font:inherit;
 .radio input:checked+span{font-weight:700}
 .up{border:2px dashed var(--line);border-radius:10px;padding:14px;text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
 .up img{max-width:100%;max-height:150px;border-radius:6px}
-.tabs{display:flex;gap:6px}
-.tabs button{flex:1;border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px;font:inherit;font-weight:600;cursor:pointer;color:var(--ink)}
-.tabs button[aria-selected=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
 canvas{width:100%;height:180px;border:1px solid var(--line);border-radius:10px;background:#fff;touch-action:none;display:block}
-.typed{font-family:var(--sig);font-size:44px;text-align:center;border:1px solid var(--line);border-radius:10px;padding:12px;min-height:110px;display:flex;align-items:center;justify-content:center;word-break:break-word;margin-top:8px}
 .bar{padding:4px 0 24px}
 .bar .in{display:flex;gap:10px}.bar .btn{flex:1}
 .btn{font:inherit;font-weight:700;border-radius:10px;padding:11px 20px;border:1px solid var(--navy);background:var(--navy);color:#fff;cursor:pointer}
@@ -77,11 +73,10 @@ ol.guide li::before{content:counter(g);flex:none;width:28px;height:28px;border-r
 
 .skip{position:absolute;left:-999px;top:0;background:#fff;color:var(--navy);padding:8px 12px;z-index:10}
 .skip:focus{left:8px;top:8px}
-h1{text-wrap:balance}h1:focus{outline:none}
+h1{text-wrap:balance}h1:focus,main:focus{outline:none}
 button,summary,.up input,label{touch-action:manipulation}
 .btn:hover:not([disabled]){background:var(--navy2);border-color:var(--navy2)}
 .btn.ghost:hover:not([disabled]){background:var(--soft);color:var(--navy)}
-.tabs button:hover:not([aria-selected=true]){background:var(--soft)}
 .doc summary:hover{background:var(--soft)}
 .radio label:hover{background:var(--soft)}
 .card,.docs{overflow-wrap:anywhere}
@@ -91,7 +86,7 @@ button,summary,.up input,label{touch-action:manipulation}
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <header><div class="in"><div><b>Document signing</b><br><span>Jeyanthi Jegathisan &middot; Financial adviser</span></div></div></header>
-<main class="wrap" id="main">
+<main class="wrap" id="main" tabindex="-1">
   <div class="steps" id="steps" role="progressbar" aria-label="Progress" aria-valuemin="1" aria-valuenow="1" aria-valuemax="1" hidden></div>
   <section id="msg" hidden><div class="card done"><h1 tabindex="-1" id="msgT"></h1><p class="lead" id="msgB"></p></div></section>
   <section id="loading"><div class="card done"><p class="lead">Loading your documents&hellip;</p></div></section>
@@ -115,13 +110,10 @@ button,summary,.up input,label{touch-action:manipulation}
   </section>
 
   <section id="s2" hidden>
-    <h1 tabindex="-1">A few questions</h1>
-    <p class="lead">These go on the PIAS transfer form.</p>
+    <h1 tabindex="-1">One question</h1>
+    <p class="lead">This goes on the PIAS transfer form.</p>
     <div class="card">
       <div class="fld" role="radiogroup" aria-labelledby="rSrc_l"><span id="rSrc_l">Source of funds</span><div class="radio" id="rSrc"></div></div>
-      <div class="fld" role="radiogroup" aria-labelledby="rY1_l"><span id="rY1_l">I understand the transfer of my policies to PIAS</span><div class="radio" id="rY1"></div></div>
-      <div class="fld" role="radiogroup" aria-labelledby="rY2_l"><span id="rY2_l">I agree to the adviser accessing my policy information</span><div class="radio" id="rY2"></div></div>
-      <div class="fld" role="radiogroup" aria-labelledby="rY3_l"><span id="rY3_l">I have read the PIAS disclosures</span><div class="radio" id="rY3"></div></div>
       <div class="err" id="e2" role="alert"></div>
     </div>
   </section>
@@ -144,15 +136,20 @@ button,summary,.up input,label{touch-action:manipulation}
     <p class="lead">Open each one to check it. You sign once, in the next step, and your signature goes on every document.</p>
     <button type="button" class="btn ghost sm" id="toggleAll" aria-expanded="false">Expand all</button>
     <div class="docs" id="docs" aria-live="polite"></div>
+    <div class="card" id="confirms" hidden>
+      <b class="sm">Please confirm</b>
+      <div class="fld" role="radiogroup" aria-labelledby="rY1_l"><span id="rY1_l">I understand the transfer of my policies to PIAS</span><div class="radio" id="rY1"></div></div>
+      <div class="fld" role="radiogroup" aria-labelledby="rY2_l"><span id="rY2_l">I agree to the adviser accessing my policy information</span><div class="radio" id="rY2"></div></div>
+      <div class="fld" role="radiogroup" aria-labelledby="rY3_l"><span id="rY3_l">I have read the PIAS disclosures</span><div class="radio" id="rY3"></div></div>
+      <div class="err" id="e4" role="alert"></div>
+    </div>
   </section>
 
   <section id="s5" hidden>
     <h1 tabindex="-1">Sign</h1>
     <p class="lead">Your signature is applied to all <span id="nDocs"></span> documents, dated today.</p>
     <div class="card">
-      <div class="tabs" role="tablist"><button type="button" role="tab" id="tDraw" aria-selected="true">Draw</button><button type="button" role="tab" id="tType" aria-selected="false">Type</button></div>
-      <div id="pDraw"><canvas id="cv" aria-label="Signature pad"></canvas><button type="button" class="btn ghost sm" id="clr">Clear</button></div>
-      <div id="pType" hidden><input type="text" id="typeName" name="signature_name" aria-label="Type your name" autocomplete="off" maxlength="40"><div class="typed" id="typedOut"></div></div>
+      <div id="pDraw"><canvas id="cv" role="img" aria-label="Signature pad: draw your signature with your finger or mouse"></canvas><button type="button" class="btn ghost sm" id="clr">Clear</button></div>
       <label class="check"><input type="checkbox" id="agree" name="agree"><span>I confirm the details are correct and I agree to sign these documents electronically. My signing time, IP address and device are recorded.</span></label>
       <div class="err" id="e5" role="alert"></div>
     </div>
@@ -191,7 +188,7 @@ button,summary,.up input,label{touch-action:manipulation}
   'use strict';
   var API = 'https://n8n.srv1165221.hstgr.cloud/webhook/';
   var $ = function (id) { return document.getElementById(id); };
-  var S = { token: '', data: null, steps: [], i: 0, mode: 'draw', drawn: false, imgs: { F: null, B: null, M: null }, previews: {}, submitting: false, sig: null };
+  var S = { token: '', data: null, steps: [], i: 0, drawn: false, imgs: { F: null, B: null, M: null }, previews: {}, submitting: false, sig: null };
 
   // ---- token: read once, scrub from the address bar ----
   (function () {
@@ -256,7 +253,7 @@ button,summary,.up input,label{touch-action:manipulation}
     S.steps = steps;
     $('nDocs').textContent = toSign().length;
     buildDocs();
-    $('typeName').value = c.name || ''; $('typedOut').textContent = c.name || '';
+    $('confirms').hidden = !needP;
     $('loading').hidden = true;
     draw();
   }
@@ -382,18 +379,6 @@ button,summary,.up input,label{touch-action:manipulation}
     var d = window.devicePixelRatio || 1, x = Math.max(0, minX - 6) * d, y = Math.max(0, minY - 6) * d, w = Math.min(cv.width - x, (maxX - minX + 12) * d), h = Math.min(cv.height - y, (maxY - minY + 12) * d);
     return padded(cv, Math.round(w), Math.round(h), Math.round(x), Math.round(y));
   }
-  function typedPng(name) {
-    var c = document.createElement('canvas'); c.width = 900; c.height = 220; var g = c.getContext('2d');
-    g.fillStyle = 'rgba(0,0,0,0)'; g.clearRect(0, 0, 900, 220);
-    var size = 110; g.fillStyle = '#14202e'; g.textBaseline = 'middle';
-    do { g.font = size + 'px "Segoe Script","Bradley Hand","Snell Roundhand","Apple Chancery","Brush Script MT",cursive'; size -= 6; } while (g.measureText(name).width > 840 && size > 24);
-    g.textAlign = 'center'; g.fillText(name, 450, 110);
-    return c.toDataURL('image/png').replace(/^data:image\/png;base64,/, '');
-  }
-  function tab(m) { S.mode = m; $('tDraw').setAttribute('aria-selected', String(m === 'draw')); $('tType').setAttribute('aria-selected', String(m === 'type')); $('pDraw').hidden = m !== 'draw'; $('pType').hidden = m !== 'type'; if (m === 'draw') sizeCanvas(); }
-  $('tDraw').addEventListener('click', function () { tab('draw'); });
-  $('tType').addEventListener('click', function () { tab('type'); });
-  $('typeName').addEventListener('input', function () { $('typedOut').textContent = this.value; });
   $('phone').addEventListener('input', function () { this.value = this.value.replace(/\D/g, '').slice(0, 8); });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && e.target.matches && e.target.matches('input[type=text],input[type=email],input[type=tel]') && ['details', 'questions', 'id'].indexOf(S.steps[S.i]) >= 0) { e.preventDefault(); $('next').click(); }
@@ -406,11 +391,14 @@ button,summary,.up input,label{touch-action:manipulation}
     if (step === 'details') {
       var er = checkDetails();
       if (er) { $('e1').textContent = er[0]; $('e1').scrollIntoView({ block: 'center' }); $(er[1]).focus(); return; }
-      $('e1').textContent = ''; log('details_confirmed');
+      $('e1').textContent = ''; log('details_confirmed'); S.previews = {}; buildDocs(); $('confirms').hidden = !piasPending();
     }
     if (step === 'questions') {
-      if (!cur('y1') || !cur('y2') || !cur('y3')) { $('e2').textContent = 'Please select Yes for each of the three statements.'; return; }
-      $('e2').textContent = ''; log('questions_done');
+      $('e2').textContent = ''; S.previews = {}; buildDocs(); $('confirms').hidden = !piasPending();
+    }
+    if (step === 'review' && piasPending()) {
+      if (!cur('y1') || !cur('y2') || !cur('y3')) { $('e4').textContent = 'Please select Yes for each of the three statements.'; $('e4').scrollIntoView({ block: 'center' }); return; }
+      $('e4').textContent = ''; log('confirmations_done');
     }
     if (step === 'id') {
       if (!S.imgs.F || !S.imgs.B) { $('e3').textContent = 'Please add both the front and the back.'; return; }
@@ -433,12 +421,10 @@ button,summary,.up input,label{touch-action:manipulation}
   });
 
   function submit() {
-    var name = $('typeName').value.trim();
-    var ok = S.mode === 'draw' ? S.drawn : name.length > 1;
-    if (!ok) { $('e5').textContent = 'Please add your signature.'; return; }
+    if (!S.drawn) { $('e5').textContent = 'Please add your signature.'; return; }
     if (!$('agree').checked) { $('e5').textContent = 'Please tick the confirmation box.'; return; }
     $('e5').textContent = '';
-    var sig = S.mode === 'draw' ? drawnPng() : typedPng(name);
+    var sig = drawnPng();
     var needP = piasPending();
     var body = { t: S.token, details: details(), consents: { transfer: true, access: true, disclosures: true }, source: cur('s') || 'salary', signature_b64: sig };
     if (needP && S.data.id_upload_required) {
