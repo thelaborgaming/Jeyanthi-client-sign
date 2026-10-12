@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#12263a">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-ZqtgpLVM6q2xRdKIxcXeGsL7K9iL7oOfNuca1kMiOyA='; style-src 'sha256-WEHo2zOVB/Bzktm/1aBMH5IU+mDvbfjltXwo8Vq6yMA='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-NTDZSSw4JGx5Z/f9B3sHPWl6W94zbPDHfYJgWQepkZE='; style-src 'sha256-WEHo2zOVB/Bzktm/1aBMH5IU+mDvbfjltXwo8Vq6yMA='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
 <title>Document signing</title>
 <style>:root{color-scheme:light;
   --bg:#eef1f0;--card:#fcfdfc;--ink:#12263a;--muted:#4e5f6e;--line:#c9d2d6;--edge:#8795a0;
@@ -385,6 +385,15 @@ button,summary,.up input,label{touch-action:manipulation}
   }
 
   // ---- ID photos: shrink on device ----
+  var SRC = {}, ROT = {};
+  function renderId(k) {
+    var src = SRC[k], r = ROT[k] % 4, sw = r % 2 === 1, w = sw ? src.height : src.width, h = sw ? src.width : src.height;
+    var c = document.createElement('canvas'); c.width = w; c.height = h;
+    var g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, w, h);
+    g.translate(w / 2, h / 2); g.rotate(r * Math.PI / 2); g.drawImage(src, -src.width / 2, -src.height / 2);
+    S.imgs[k] = c.toDataURL('image/jpeg', 0.8);
+    $('p' + k).innerHTML = '<img alt="preview" src="' + S.imgs[k] + '"><div class="hint">' + Math.round(S.imgs[k].length * 0.75 / 1024) + ' KB after shrinking</div>' + (k === 'M' ? '' : '<button type="button" class="btn ghost sm" data-rot="' + k + '">Rotate ↻</button><div class="hint">The card should read upright. Tap Rotate if it is sideways.</div>');
+  }
   ['F', 'B', 'M'].forEach(function (k) {
     $('f' + k).addEventListener('change', function (e) {
       var f = e.target.files[0]; if (!f) return;
@@ -392,13 +401,19 @@ button,summary,.up input,label{touch-action:manipulation}
       img.onload = function () {
         var max = k === 'M' ? 1600 : 1400, s = Math.min(1, max / Math.max(img.width, img.height));
         var c = document.createElement('canvas'); c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
-        var g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
-        S.imgs[k] = c.toDataURL('image/jpeg', 0.8); URL.revokeObjectURL(url);
-        $('p' + k).innerHTML = '<img alt="preview" src="' + S.imgs[k] + '"><div class="hint">' + Math.round(S.imgs[k].length * 0.75 / 1024) + ' KB after shrinking</div>';
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+        SRC[k] = c; ROT[k] = (k !== 'M' && c.height > c.width) ? 1 : 0;
+        renderId(k);
         if (k === 'M') { $('e6').textContent = ''; if (S.steps[S.i] === 'guide') $('next').disabled = false; }
       };
       img.onerror = function () { $('p' + k).textContent = 'That file could not be read. Please choose a photo.'; };
       img.src = url;
+    });
+  });
+  ['pF', 'pB'].forEach(function (id) {
+    $(id).addEventListener('click', function (e) {
+      var k = e.target && e.target.getAttribute && e.target.getAttribute('data-rot');
+      if (k && SRC[k]) { ROT[k] = (ROT[k] + 1) % 4; renderId(k); }
     });
   });
 
