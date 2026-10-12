@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#12263a">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-wZkj+bv2Vl2yr3Mb/1AjvWI8c3ejk+HOQHH8bwqLz6c='; style-src 'sha256-wkr7y8ar7w6luZ0D0ovrsHkmud46s5sM5gyBQzyVgKE='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-A1LcD1zoxVJxdIVtsMT8BudGrWfOx2ILwysOQMoiklI='; style-src 'sha256-jOzcSykY6EFk3uj876xybFETLT03mD8+EifSA/Tjh4Q='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
 <title>Document signing</title>
 <style>:root{color-scheme:light;
   --bg:#eef1f0;--card:#fcfdfc;--ink:#12263a;--muted:#4e5f6e;--line:#c9d2d6;--edge:#8795a0;
@@ -31,6 +31,7 @@ input[type=text],input[type=email],input[type=tel],select,textarea{font:inherit;
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .hint{font-weight:400;color:var(--muted);font-size:13px}
 .sm{font-size:14px}
+.polg{display:grid;grid-template-columns:max-content 1fr;gap:8px 16px;margin-top:6px;align-items:baseline}
 .pol{display:inline-block;font:500 12px ui-monospace,monospace;background:var(--soft);border-radius:3px;padding:3px 8px;margin:3px 4px 3px 0}
 .docs{display:flex;flex-direction:column;gap:8px}
 .doc{border:1px solid var(--line);border-left:4px solid var(--edge);border-radius:2px;overflow:hidden;background:#fff}
@@ -235,6 +236,28 @@ button,summary,.up input,label{touch-action:manipulation}
   function hasGuide() { return S.data.docs.some(function (d) { return d.fill_method === 'guide_only' && d.status !== 'signed'; }); }
   function piasPending() { return toSign().some(function (d) { return d.form_code === 'PIAS_CTF'; }); }
 
+  function insName(p) { return p.insurer_raw || p.insurer_code; }
+  function groupPols(list) {
+    var order = [], by = {};
+    list.forEach(function (p) { var k = insName(p); if (!by[k]) { by[k] = []; order.push(k); } by[k].push(p); });
+    return '<div class="polg">' + order.map(function (k) {
+      return '<b>' + esc(k) + '</b><span>' + by[k].map(function (p) { return '<span class="pol">' + esc(p.policy_no) + '</span>' + (p.policy_name ? ' <small class="hint">' + esc(p.policy_name) + '</small>' : ''); }).join('<br>') + '</span>';
+    }).join('') + '</div>';
+  }
+  function covers(d) {
+    var pols = S.data.policies, nums = [];
+    String(d.policy_nos || '').split(/\s*,\s*/).forEach(function (n) { if (n && nums.indexOf(n) < 0) nums.push(n); });
+    var list = nums.length ? pols.filter(function (p) { return nums.indexOf(p.policy_no) >= 0; }) : [];
+    if (!list.length) {
+      var code = d.form_code === 'FINEXIS_STAY' ? 'AIA' : d.form_code.split('_')[0];
+      list = pols.filter(function (p) { return p.insurer_code === code; });
+    }
+    if (!list.length) return '';
+    var order = [], by = {};
+    list.forEach(function (p) { var k = insName(p); if (!by[k]) { by[k] = []; order.push(k); } by[k].push(p.policy_no); });
+    return order.map(function (k) { return k + ' ' + by[k].join(', '); }).join(' · ');
+  }
+
   function init() {
     var d = S.data, c = d.client;
     $('hello').textContent = 'Hello, ' + c.name;
@@ -244,7 +267,7 @@ button,summary,.up input,label{touch-action:manipulation}
     var ph = String(c.contact || '').replace(/\D/g, '');
     if (ph.length === 10 && ph.indexOf('65') === 0) ph = ph.slice(2);
     $('phone').value = ph.length === 8 ? ph : '';
-    $('pols').innerHTML = d.policies.map(function (p) { return '<span class="pol">' + esc(p.insurer_code) + ' ' + esc(p.policy_no) + '</span>'; }).join('');
+    $('pols').innerHTML = groupPols(d.policies);
     $('mcode').textContent = d.manulife_agent_code || '';
     radios('rSrc', 's', [['salary', 'Salary'], ['business', 'Business income'], ['insurance', 'Insurance'], ['retirement', 'Retirement'], ['investments', 'Investments'], ['gifts', 'Gifts'], ['inheritance', 'Inheritance'], ['compensation', 'Compensation']], 'salary');
     radios('rY1', 'y1', [['yes', 'Yes']], ''); radios('rY2', 'y2', [['yes', 'Yes']], ''); radios('rY3', 'y3', [['yes', 'Yes']], '');
@@ -340,7 +363,7 @@ button,summary,.up input,label{touch-action:manipulation}
     $('docs').innerHTML = '';
     toSign().forEach(function (d, i) {
       var det = document.createElement('details'); det.className = 'doc';
-      var pn = d.policy_nos ? '<br><small>Policies: ' + esc(d.policy_nos) + '</small>' : '';
+      var cv = covers(d), pn = cv ? '<br><small>Covers: ' + esc(cv) + '</small>' : '';
       det.innerHTML = '<summary><span>' + esc(d.label) + (d.copy_index > 0 ? ' (' + (d.copy_index + 1) + ')' : '') + (d.form_code === 'FINEXIS_STAY' ? ' <span class="tag">AIA POLICIES ONLY</span>' : '') + pn + '</span><small>Tap to review</small></summary><div class="paper"><div class="hint">Loading preview&hellip;</div></div>';
       det.addEventListener('toggle', function () { if (det.open) loadPreview(d, det.querySelector('.paper')); syncToggle(); });
       $('docs').appendChild(det);
