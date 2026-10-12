@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#12263a">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-A1LcD1zoxVJxdIVtsMT8BudGrWfOx2ILwysOQMoiklI='; style-src 'sha256-WEHo2zOVB/Bzktm/1aBMH5IU+mDvbfjltXwo8Vq6yMA='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-ZqtgpLVM6q2xRdKIxcXeGsL7K9iL7oOfNuca1kMiOyA='; style-src 'sha256-WEHo2zOVB/Bzktm/1aBMH5IU+mDvbfjltXwo8Vq6yMA='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
 <title>Document signing</title>
 <style>:root{color-scheme:light;
   --bg:#eef1f0;--card:#fcfdfc;--ink:#12263a;--muted:#4e5f6e;--line:#c9d2d6;--edge:#8795a0;
@@ -360,12 +360,13 @@ button,summary,.up input,label{touch-action:manipulation}
     });
     setTimeout(syncToggle, all.length * 200 + 50);
   }
+  function copyTag(d) { var n = S.data.docs.filter(function (x) { return x.form_code === d.form_code; }).length; return n > 1 ? ' (' + (d.copy_index + 1) + ' of ' + n + ')' : ''; }
   function buildDocs() {
     $('docs').innerHTML = '';
     toSign().forEach(function (d, i) {
       var det = document.createElement('details'); det.className = 'doc';
       var cv = covers(d), pn = cv ? '<br><small>Covers: ' + esc(cv) + '</small>' : '';
-      det.innerHTML = '<summary><span>' + esc(d.label) + (d.copy_index > 0 ? ' (' + (d.copy_index + 1) + ')' : '') + (d.form_code === 'FINEXIS_STAY' ? ' <span class="tag">AIA POLICIES ONLY</span>' : '') + pn + '</span><small>Tap to review</small></summary><div class="paper"><div class="hint">Loading preview&hellip;</div></div>';
+      det.innerHTML = '<summary><span>' + esc(d.label) + copyTag(d) + (d.form_code === 'FINEXIS_STAY' ? ' <span class="tag">AIA POLICIES ONLY</span>' : '') + pn + '</span><small>Tap to review</small></summary><div class="paper"><div class="hint">Loading preview&hellip;</div></div>';
       det.addEventListener('toggle', function () { if (det.open) loadPreview(d, det.querySelector('.paper')); syncToggle(); });
       $('docs').appendChild(det);
     });
