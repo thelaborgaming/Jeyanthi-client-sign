@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#12263a">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-A1LcD1zoxVJxdIVtsMT8BudGrWfOx2ILwysOQMoiklI='; style-src 'sha256-jOzcSykY6EFk3uj876xybFETLT03mD8+EifSA/Tjh4Q='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-A1LcD1zoxVJxdIVtsMT8BudGrWfOx2ILwysOQMoiklI='; style-src 'sha256-WEHo2zOVB/Bzktm/1aBMH5IU+mDvbfjltXwo8Vq6yMA='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
 <title>Document signing</title>
 <style>:root{color-scheme:light;
   --bg:#eef1f0;--card:#fcfdfc;--ink:#12263a;--muted:#4e5f6e;--line:#c9d2d6;--edge:#8795a0;
@@ -72,7 +72,7 @@ ol.guide li::before{content:counter(g);flex:none;width:28px;height:28px;border-r
 .done .big{width:68px;height:68px;border-radius:50%;background:var(--okbg);color:var(--ok);display:flex;align-items:center;justify-content:center;font-size:34px}
 .ph{display:flex;align-items:stretch;border:1.5px solid var(--edge);border-radius:4px;overflow:hidden;background:#fff}
 .ph b{flex:none;display:flex;align-items:center;white-space:nowrap;background:var(--soft);padding:0 12px;font-weight:700}
-.ph input{flex:1;min-width:0;width:auto;border:0!important;border-radius:0!important}
+.ph input{flex:1;min-width:0;width:auto;border:0!important;border-radius:0!important;min-height:44px}
 [hidden]{display:none!important}
 .mt{margin-top:10px}
 
@@ -104,7 +104,7 @@ button,summary,.up input,label{touch-action:manipulation}
       <div class="grid">
         <label>Full name <input type="text" id="name" name="name" autocomplete="name"></label>
         <label>NRIC / Passport no. <input type="text" id="nric" name="id_number" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="12"></label>
-        <label>Mobile number <span class="hint">8 digits, Singapore number</span><span class="ph"><b>+65</b><input type="tel" id="phone" name="phone" inputmode="numeric" maxlength="8" autocomplete="tel-national" placeholder="8 digits"></span></label>
+        <label>Mobile number (8 digits) <span class="ph"><b>+65</b><input type="tel" id="phone" name="phone" inputmode="numeric" maxlength="8" autocomplete="tel-national" placeholder="8 digits"></span></label>
         <label>Email <input type="email" id="email" name="email" autocomplete="email" spellcheck="false"></label>
         <label>Nationality <input type="text" id="nat" name="nationality" value="Singaporean" autocomplete="country-name"></label>
         <label>Occupation <input type="text" id="occ" name="occupation" autocomplete="organization-title" placeholder="Please complete"></label>
