@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#12263a">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-NTDZSSw4JGx5Z/f9B3sHPWl6W94zbPDHfYJgWQepkZE='; style-src 'sha256-WEHo2zOVB/Bzktm/1aBMH5IU+mDvbfjltXwo8Vq6yMA='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-qwjhMBQLqUHw9+dfKF9ORo78+U6pNuWmpf8V0jBurrw='; style-src 'sha256-WEHo2zOVB/Bzktm/1aBMH5IU+mDvbfjltXwo8Vq6yMA='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
 <title>Document signing</title>
 <style>:root{color-scheme:light;
   --bg:#eef1f0;--card:#fcfdfc;--ink:#12263a;--muted:#4e5f6e;--line:#c9d2d6;--edge:#8795a0;
@@ -109,7 +109,7 @@ button,summary,.up input,label{touch-action:manipulation}
         <label>Nationality <input type="text" id="nat" name="nationality" value="Singaporean" autocomplete="country-name"></label>
         <label>Occupation <input type="text" id="occ" name="occupation" autocomplete="organization-title" placeholder="Please complete"></label>
       </div>
-      <label>Residential address <span class="hint">Please update this to your current address if it has changed</span><textarea id="addr" name="address" rows="2" autocomplete="street-address"></textarea></label>
+      <label>Residential address <span class="hint">Please use your current address and include the unit number and the 6-digit postal code, e.g. Blk 123 Ang Mo Kio Ave 3, #05-67, Singapore 560123</span><textarea id="addr" name="address" rows="2" autocomplete="street-address" placeholder="Blk 123 Ang Mo Kio Ave 3, #05-67, Singapore 560123"></textarea></label>
       <div><b class="sm">Your policies</b><div id="pols"></div></div>
       <div class="err" id="e1" role="alert"></div>
     </div>
@@ -336,6 +336,7 @@ button,summary,.up input,label{touch-action:manipulation}
     if (!/^[^@ ]+@[^@ ]+[.][^@ ]+$/.test(d.email)) return ['Please enter a valid email address.', 'email'];
     if (!d.occupation) return ['Please enter your occupation.', 'occ'];
     if (d.address.length < 5) return ['Please enter your residential address.', 'addr'];
+    if (!/(^|[^0-9])[0-9]{6}([^0-9]|$)/.test(d.address)) return ['Please include the 6-digit postal code in your address, e.g. Singapore 560123.', 'addr'];
     return null;
   }
 
