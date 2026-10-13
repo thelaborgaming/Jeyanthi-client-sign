@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#12263a">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-qwjhMBQLqUHw9+dfKF9ORo78+U6pNuWmpf8V0jBurrw='; style-src 'sha256-WEHo2zOVB/Bzktm/1aBMH5IU+mDvbfjltXwo8Vq6yMA='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-FlD0F3Ex0K4B7StDM76SXG4JP9qrKIOw+Ved22B2ZK0='; style-src 'sha256-WEHo2zOVB/Bzktm/1aBMH5IU+mDvbfjltXwo8Vq6yMA='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
 <title>Document signing</title>
 <style>:root{color-scheme:light;
   --bg:#eef1f0;--card:#fcfdfc;--ink:#12263a;--muted:#4e5f6e;--line:#c9d2d6;--edge:#8795a0;
@@ -262,7 +262,9 @@ button,summary,.up input,label{touch-action:manipulation}
   function init() {
     var d = S.data, c = d.client;
     $('hello').textContent = 'Hello, ' + c.name;
-    $('name').value = c.name || '';
+    $('name').value = String(c.name || '').toUpperCase();
+    ['name', 'addr', 'occ', 'nat'].forEach(function (k) { $(k).addEventListener('input', function () { var e = this, a = e.selectionStart, b = e.selectionEnd, u = e.value.toUpperCase(); if (u !== e.value) { e.value = u; try { e.setSelectionRange(a, b); } catch (x) {} } }); });
+    $('nat').value = String($('nat').value).toUpperCase();
     var id = String(c.id_no || '');
     $('nric').value = id;
     var ph = String(c.contact || '').replace(/\D/g, '');
@@ -326,7 +328,7 @@ button,summary,.up input,label{touch-action:manipulation}
 
   // ---- details ----
   function details() {
-    return { name: $('name').value.trim(), nric: $('nric').value.trim().toUpperCase(), phone8: $('phone').value.trim(), address: $('addr').value.trim(), email: $('email').value.trim(), occupation: $('occ').value.trim(), nationality: $('nat').value.trim() || 'Singaporean' };
+    return { name: $('name').value.trim().toUpperCase(), nric: $('nric').value.trim().toUpperCase(), phone8: $('phone').value.trim(), address: $('addr').value.trim().toUpperCase(), email: $('email').value.trim(), occupation: $('occ').value.trim().toUpperCase(), nationality: ($('nat').value.trim() || 'Singaporean').toUpperCase() };
   }
   function checkDetails() {
     var d = details();
