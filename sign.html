@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#12263a">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-FlD0F3Ex0K4B7StDM76SXG4JP9qrKIOw+Ved22B2ZK0='; style-src 'sha256-sX7138cNvUUDWkKhWgqqJjXsghnQWImS5cLGQkTAZ9E='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-zmHmhy5qYe4LhSqqEKpzTtLuefHHt8bjByI+8Er84p0='; style-src 'sha256-sX7138cNvUUDWkKhWgqqJjXsghnQWImS5cLGQkTAZ9E='; img-src 'self' data: blob:; connect-src https://n8n.srv1165221.hstgr.cloud; base-uri 'none'; form-action 'none'">
 <title>Document signing</title>
 <style>:root{color-scheme:light;
   --bg:#eef1f0;--card:#fcfdfc;--ink:#12263a;--muted:#4e5f6e;--line:#c9d2d6;--edge:#8795a0;
@@ -110,7 +110,7 @@ button,summary,.up input,label{touch-action:manipulation}
         <label>Nationality <input type="text" id="nat" name="nationality" value="Singaporean" autocomplete="country-name"></label>
         <label>Occupation <input type="text" id="occ" name="occupation" autocomplete="organization-title" placeholder="Please complete"></label>
       </div>
-      <label>Residential address <span class="hint">Please use your current address and include the unit number and the 6-digit postal code, e.g. Blk 123 Ang Mo Kio Ave 3, #05-67, Singapore 560123</span><textarea id="addr" name="address" rows="2" autocomplete="street-address" placeholder="Blk 123 Ang Mo Kio Ave 3, #05-67, Singapore 560123"></textarea></label>
+      <label>Residential address <span class="hint">Pre-filled from our records. Please check it and edit if your address has changed. Include the unit number and the 6-digit postal code, e.g. Blk 123 Ang Mo Kio Ave 3, #05-67, Singapore 560123</span><textarea id="addr" name="address" rows="2" autocomplete="street-address" placeholder="Blk 123 Ang Mo Kio Ave 3, #05-67, Singapore 560123"></textarea></label>
       <div><b class="sm">Your policies</b><div id="pols"></div></div>
       <div class="err" id="e1" role="alert"></div>
     </div>
@@ -264,6 +264,8 @@ button,summary,.up input,label{touch-action:manipulation}
     var d = S.data, c = d.client;
     $('hello').textContent = 'Hello, ' + c.name;
     $('name').value = String(c.name || '').toUpperCase();
+    if (c.address) $('addr').value = String(c.address).toUpperCase();
+    if (c.email) $('email').value = String(c.email);
     ['name', 'addr', 'occ', 'nat'].forEach(function (k) { $(k).addEventListener('input', function () { var e = this, a = e.selectionStart, b = e.selectionEnd, u = e.value.toUpperCase(); if (u !== e.value) { e.value = u; try { e.setSelectionRange(a, b); } catch (x) {} } }); });
     $('nat').value = String($('nat').value).toUpperCase();
     var id = String(c.id_no || '');
